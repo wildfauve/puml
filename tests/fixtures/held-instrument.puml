@@ -1,0 +1,153 @@
+@startuml held-instrument-data-product-model
+
+!theme amiga
+
+class HeldInstrument <<table>> {
+    --meta--
+    location: /domains/portfolio/data_products/common/held_instrument.db
+    isInDomain: Portfolio
+    isInDataProduct: Common
+    hasDatabaseName: held_instrument.db
+    hasTableName: held_instrument
+    hasUpdateFrequency: daily
+    hasPrimaryIdentity: Asset.@id
+    isPartitionedOn: Asset.structuralType
+    hasDeltaMergeProperty: Asset.@id
+    hasDataStyle: Entity.Core
+    ===
+}
+
+class Asset <<column>> {
+    --meta--
+    isAtColumnPosition: 1
+    vocabNamespace: held_instrument
+    ===
+    @id: StringType
+    @type: ArrayType[StringType]
+    structuralType: StringType
+    shortName: StringType
+    pricingFactor: Optional[DecimalType(11, 5)]
+}
+
+class State <<column>> {
+    --meta--
+    isAtColumnPosition: 2
+    vocabNamespace: state
+    ===
+    currentState: StringType
+}
+
+class AppliedAt <<column>> {
+    --meta--
+    isAtColumnPosition: 3
+    vocabNamespace: time_dimension
+    ===
+    hasTimeInstant: StringType
+    hasMonthDimension: StringType
+    hasYear: StringType
+}
+
+class CreatedAt <<column>> {
+    --meta--
+    isAtColumnPosition: 4
+    vocabNamespace: time_dimension
+    ===
+    hasTimeInstant: StringType
+    hasMonthDimension: StringType
+    hasYear: StringType
+}
+
+class Issuer <<column>> {
+    --meta--
+    isAtColumnPosition: 5
+    vocabNamespace: issuer
+    ===
+    @id: StringType
+    @type: ArrayType[StringType]
+    label: StringType
+}
+
+class CounterParty <<column>> {
+    --meta--
+    isAtColumnPosition: 6
+    vocabNamespace: counterParty
+    ===
+    label: StringType
+}
+
+class IssuerClassification <<column>> {
+    --meta--
+    isAtColumnPosition: 7
+    vocabNamespace: issuerClassification
+    ===
+    @id: StringType
+    @type: ArrayType[StringType]
+    label: StringType
+}
+
+class CountryOfRisk <<column>> {
+    --meta--
+    isAtColumnPosition: 8
+    vocabNamespace: countryOfRisk
+    ===
+    @id: StringType
+    label: StringType
+}
+
+class LegalJurisdiction <<column>> {
+    --meta--
+    isAtColumnPosition: 9
+    vocabNamespace: legalJurisdiction
+    ===
+    @id: StringType
+    label: StringType
+}
+
+class Classification <<column>> {
+    --meta--
+    isAtColumnPosition: 10
+    vocabNamespace: classification
+    ===
+    @id: StringType
+    @type: ArrayType[StringType]
+    label: StringType
+}
+
+
+class Rating <<column>> {
+    --meta--
+    isAtColumnPosition: 11
+    vocabNamespace: rating
+    ===
+    @id: StringType
+    @type: ArrayType[StringType]
+    label: StringType
+}
+
+class Identifier <<column>> {
+    --meta--
+    isAtColumnPosition: 12
+    vocabNamespace: identity
+    ===
+    @id: StringType
+    @type: ArrayType[StringType]
+    label: StringType
+}
+
+
+
+HeldInstrument --> "1..1" Asset: <<specialisation:core>>
+HeldInstrument --> "0..1" State: <<specialisation:core>>
+HeldInstrument --> "1..1" AppliedAt: <<specialisation:core>>
+HeldInstrument --> "1..1" CreatedAt: <<specialisation:core>>
+HeldInstrument --> "1..1" Issuer: <<specialisation:core>>
+HeldInstrument --> "0..1" CounterParty: <<specialisation:core>>
+HeldInstrument --> "1..*" IssuerClassification: <<specialisation:core>>
+HeldInstrument --> "1..1" CountryOfRisk: <<specialisation:core>>
+HeldInstrument --> "1..1" LegalJurisdiction: <<specialisation:core>>
+HeldInstrument --> "1..*" Classification: <<specialisation:core>>
+HeldInstrument --> "1..*" Rating: <<specialisation:core>>
+HeldInstrument --> "1..*" Identifier: <<specialisation:core>>
+
+
+@enduml

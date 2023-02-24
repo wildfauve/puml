@@ -1,0 +1,252 @@
+@startuml portfolio-domain-held-instrument-published-model
+
+!theme amiga
+
+
+class HeldFinancialInstrument <<fibo-fbc-fi-fi>> {
+    --behaviour--
+    statable
+    ===
+    @id
+    @type
+    'pricingFactor
+}
+
+class HeldInstrumentPosition {
+    --behaviour--
+    statable
+    versionable
+    ===
+}
+
+' Instrument Types
+class Security <<fibo-fbc-fi-fi>> {
+}
+class EquityInstrument <<fibo-fbc-fi-fi>>
+class CurrencyInstrument <<fibo-fbc-fi-fi>> {
+}
+class CurrencyForward <<fibo-der-drc-cur>> {
+    contractDateTime: ISO8601-Time
+    maturityDateTime: ISO8601-Time
+    buyCurrency: OWL:Class
+    sellCurrency: OWL:Class
+}
+class DebtInstrument <<fibo-fbc-fi-fi>> {
+    bondCouponRate
+    maturityDate
+}
+class Swap <<fibo-der-drc-swp>>
+class EquityTotalReturnSwap <<fibo-der-sbd-eqs>>
+class ReturnSwap <<fibo-der-drc-swp>>
+class TotalReturnSwap <<fibo-der-drc-swp>>
+
+class Underlier {
+    @id: Identity
+    @type: OWL:Class
+    position: Identity
+}
+
+' Instrument Property Types
+class Issuer {
+    @id: URI
+    @type: OWL:Class
+    label: str
+}
+
+class CountryOfRisk {
+    @id: URI
+    tag: str
+}
+
+class ShortName {
+    @type: OWL:Class
+    tag: str
+}
+
+class LegalJurisdiction {
+    @id: OWL:Class
+    tag: str
+}
+
+class Rating {
+    id: URI
+    type: OWL:Class
+    tag: str
+}
+
+class Classifier {
+    id
+    type
+    tag
+}
+
+class Identifier {
+    id
+    type
+    tag
+}
+
+class CounterParty {
+    label: str
+}
+
+class MarketPrice {
+    --behaviour--
+    versionable
+    statable
+    ==
+    @type: OWL:Class
+    observedDateTime: ISO8601-Time
+    amount: decimal
+    currencyCode: ISO3166
+    currency: "0..1" OWL:Class
+    tag: str
+}
+
+
+class MarketPriceChange {
+    --behaviour--
+    commutable
+    statable
+    ==
+    @type: OWL:Class
+    observedDateTime: ISO8601-Time
+    amount: decimal
+    currencyCode: ISO3166
+    currency: "0..1" OWL:Class
+    tag: str
+}
+
+class ForwardExchangeRate {
+    --behaviour--
+    versionable
+    temporal
+    ==
+    dealtCurrency: OWL:Class,
+    baseCurrency: OWL:Class,
+    ratioValue: decimal
+}
+
+class ExchangeRate {
+    --behaviour--
+    versionable
+    temporal
+    ==
+    @type: OWL:Class
+    observedDateTime: ISO8601-Time
+    dealtCurrency: OWL:Class,
+    baseCurrency: OWL:Class,
+    rateValue: decimal
+
+}
+
+class ExchangeRateChange {
+    --behaviour--
+    versionable
+    commutable
+    ==
+    @type: OWL:Class
+    observedDateTime: ISO8601-Time
+    dealtCurrency: OWL:Class,
+    baseCurrency: OWL:Class,
+    rateValue: decimal
+
+}
+
+class SwapLeg <<fibo-der-drc-swp>> {
+    sfo-fi:hasRoleInLeg Union[fibo-der-drc-swp:SwapReceivingParty,fibo-der-drc-swp:SwapPayingParty]
+}
+class FixedLeg <<fibo-der-drc-swp>>
+class FixedPaymentLeg <<fibo-der-drc-swp>>
+class FloatingLeg <<fibo-der-drc-swp>>
+
+'class FixedInterestRateLeg {
+'    hasCoupon
+'    hasRate
+'}
+
+' Modules
+
+' Util Classes
+
+
+
+' Class Heirarchy
+HeldFinancialInstrument <|-- Security
+HeldFinancialInstrument <|-- DerivativeInstrument
+HeldFinancialInstrument <|-- CurrencyInstrument
+HeldFinancialInstrument <|-- DebtInstrument
+
+Security <|-- EquityInstrument
+Security <|-- DepositaryReceipt
+
+CurrencyInstrument <|-- CurrencyForward
+
+DebtInstrument <|-- TradableDebtInstrument
+TradableDebtInstrument <|-- FixedIncomeSecurity
+TradableDebtInstrument <|-- Bond
+
+
+DerivativeInstrument <|--Swap
+Swap <|-- ReturnSwap
+ReturnSwap <|-- TotalReturnSwap
+TotalReturnSwap <|-- EquityTotalReturnSwap
+
+'FixedPaymentLeg <|-- FixedInterestRateLeg
+'FloatingLeg <|-- FLoatingInterestRateLeg
+
+SwapLeg <|-- FloatingLeg
+FloatingLeg <|-- ReturnLeg
+ReturnLeg <|-- TotalReturnLeg
+SwapLeg <|-- FixedLeg
+FixedLeg <|-- FixedPaymentLeg
+
+
+' FI Property Associations
+HeldFinancialInstrument --> "0..1" Issuer
+HeldFinancialInstrument --> "0..*" ShortName
+HeldFinancialInstrument --> "0..*" Rating
+HeldFinancialInstrument --> "0..1" CountryOfRisk
+HeldFinancialInstrument --> "0..1" LegalJurisdiction
+HeldFinancialInstrument --> "0..*" Classifier
+HeldFinancialInstrument --> "0..*" Identifier
+HeldFinancialInstrument --> "0..*" HeldInstrumentPosition: hasPosition
+
+HeldInstrumentPosition <|-- SecurityInstrumentPosition
+HeldInstrumentPosition <|-- CurrencyForwardPosition
+
+SecurityInstrumentPosition --> MarketPrice
+SecurityInstrumentPosition --> MarketPriceChange
+
+Issuer --> "0..*" Classifier
+
+' Swap property relations
+Swap --> "2..2" SwapLeg: fibo-fnd-rel-rel:exchanges
+'Swap --> "1..1" Underlier: fibo-der-drc-bsc:hasUnderlier
+'Swap --> Issuer: fibo-fnd-rel-rel:isIssuedBy
+
+TotalReturnSwap ..> "1..1" FixedPaymentLeg: fibo-der-drc-swp:hasFundingLeg
+TotalReturnSwap ..> "1..1" ReturnLeg: fibo-der-drc-swp:hasReturnLeg
+
+FixedPaymentLeg --> "1..2" MonetaryAmount: fibo-fnd-acc-cur:hasNotionalAmount
+
+
+'SwapLeg --> "1" Buyer: fibo-fnd-pas-pas:hasBuyer
+'SwapLeg --> "1" Seller: fibo-fnd-pas-pas:hasSeller
+
+SwapLeg --> "1" Swap: fibo-der-drc-swp:isLegOf
+SwapLeg --> "0..1" Underlier
+SwapLeg --> "0..*" HeldInstrumentPosition: hasNettedPosition
+
+
+Security --> SecurityInstrumentPosition
+
+CurrencyInstrument --> "1..1" CounterParty
+CurrencyForward --> "1..1" ForwardExchangeRate: fibo-der-drc-cur:hasForwardExchangeRate
+CurrencyForward --> CurrencyForwardPosition
+CurrencyForwardPosition --> "1..*" ExchangeRate
+CurrencyForwardPosition --> "1..*" ExchangeRateChange
+
+
+
+@enduml
